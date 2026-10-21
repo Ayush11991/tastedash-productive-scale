@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TasteDash — Productive Scale Control Tower</title>
+<style>
+  :root{
+    --green:#0f6b45; --green2:#198754; --green3:#dff3e8; --green4:#eff9f3;
+    --ink:#101828; --muted:#667085; --line:#e4e7ec; --bg:#f6f8f7; --white:#fff;
+    --red:#d92d20; --redbg:#fff0ee; --amber:#b54708; --amberbg:#fff7e8; --shadow:0 12px 30px rgba(16,24,40,.08);
+  }
+  *{box-sizing:border-box} body{margin:0;font-family:Calibri,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  .app{min-height:100vh;display:grid;grid-template-columns:238px 1fr}
+  aside{background:#0c3f2d;color:white;padding:22px 16px;position:sticky;top:0;height:100vh}
+  .brand{display:flex;gap:10px;align-items:center;padding:0 10px 22px}.mark{width:36px;height:36px;border-radius:11px;background:#7ce2a7;display:grid;place-items:center;color:#093d2a;font-weight:900}.brand b{font-size:22px}.brand small{display:block;color:#b9dccb;font-size:12px;margin-top:2px}
+  nav button{width:100%;border:0;background:transparent;color:#d4e8df;text-align:left;padding:12px 12px;border-radius:10px;font:600 14px Calibri;cursor:pointer;margin:3px 0;display:flex;align-items:center;gap:10px}nav button:hover,nav button.active{background:rgba(255,255,255,.11);color:white}.ico{width:24px;text-align:center;font-size:16px}
+  .side-note{position:absolute;bottom:18px;left:16px;right:16px;padding:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);border-radius:12px;color:#c9dfd4;font-size:12px;line-height:1.35}
+  main{padding:22px 26px 30px;min-width:0}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:18px}.eyebrow{font-size:12px;color:var(--green);font-weight:700;letter-spacing:.08em;text-transform:uppercase}.title{font-size:28px;font-weight:800;line-height:1.08;margin:4px 0}.subtitle{color:var(--muted);font-size:14px}
+  .top-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.scenario{display:flex;background:white;border:1px solid var(--line);border-radius:12px;padding:4px;box-shadow:0 2px 8px rgba(16,24,40,.03)}.scenario button{border:0;background:transparent;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700;color:var(--muted)}.scenario button.active{background:var(--green);color:white}.portfolioBtn{border:1px solid #b8dcc9;background:white;color:var(--green);padding:10px 13px;border-radius:10px;font-weight:700;cursor:pointer}
+  .grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.kpi{background:white;border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 3px 14px rgba(16,24,40,.035)}.kpi .label{font-size:12px;color:var(--muted);font-weight:700}.kpi .val{font-size:25px;font-weight:800;margin:7px 0 3px}.kpi .foot{font-size:12px;color:var(--muted)}.positive{color:var(--green)}.negative{color:var(--red)}
+  .layout{display:grid;grid-template-columns:1.45fr .9fr;gap:14px;margin-top:14px}.card{background:white;border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 3px 14px rgba(16,24,40,.035)}.card h3{margin:0 0 4px;font-size:17px}.card .desc{color:var(--muted);font-size:12.5px;margin-bottom:14px}.section{display:none}.section.active{display:block}
+  .levers{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.lever{border:1px solid var(--line);border-radius:12px;padding:13px;background:#fbfcfb}.lever .tag{font-size:11px;font-weight:800;color:var(--green)}.lever strong{display:block;margin-top:7px;font-size:16px}.lever .move{font-size:14px;font-weight:800;margin-top:7px}.lever small{color:var(--muted)}
+  .bridge{display:flex;align-items:flex-end;gap:7px;height:190px;padding-top:14px;border-bottom:1px solid var(--line)}.bar{flex:1;min-width:48px;border-radius:7px 7px 0 0;position:relative;background:#b7dec8}.bar.dark{background:#164b38}.bar.grey{background:#98a2b3}.bar.red{background:#f09a92}.bar span{position:absolute;top:-23px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:800;white-space:nowrap}.bar em{position:absolute;bottom:-39px;left:50%;transform:translateX(-50%);font-style:normal;font-size:10px;color:var(--muted);text-align:center;width:74px;line-height:1.1}.bridge-note{margin-top:48px;padding:10px 12px;background:var(--green4);color:#174d37;border-radius:10px;font-weight:700;font-size:12.5px}
+  .statusbox{display:flex;gap:10px;align-items:flex-start;padding:13px;border-radius:11px;margin-bottom:10px}.statusbox.good{background:var(--green4)}.statusbox.warn{background:var(--amberbg)}.statusbox.bad{background:var(--redbg)}.dot{width:10px;height:10px;border-radius:50%;margin-top:4px;flex:0 0 auto}.good .dot{background:var(--green2)}.warn .dot{background:#e9a23b}.bad .dot{background:var(--red)}.statusbox b{font-size:13px}.statusbox p{margin:3px 0 0;color:var(--muted);font-size:12px;line-height:1.35}
+  .decision{border-top:1px solid var(--line);padding-top:12px;margin-top:10px}.decision .big{font-size:20px;font-weight:800}.decision p{font-size:12.5px;color:var(--muted);line-height:1.4}
+  .metric-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.mini{border:1px solid var(--line);border-radius:12px;padding:12px}.mini b{font-size:19px;display:block}.mini span{color:var(--muted);font-size:11px}
+  .threshold{height:14px;background:#edf1ef;border-radius:20px;position:relative;overflow:hidden;margin:16px 0 7px}.threshold .fill{height:100%;background:linear-gradient(90deg,#e15e54 0 43%,#e5b04d 43% 55%,#2fa66d 55%);width:100%}.pin{position:absolute;top:-5px;width:3px;height:24px;background:#111827}.threshold-labels{display:flex;justify-content:space-between;color:var(--muted);font-size:10px}
+  .sliderline{display:flex;align-items:center;gap:12px;margin:15px 0}.sliderline input{flex:1;accent-color:var(--green)}.pill{padding:6px 9px;border-radius:999px;background:var(--green4);color:var(--green);font-weight:800;font-size:12px}
+  .queue{display:grid;gap:8px}.case{display:grid;grid-template-columns:78px 1fr 95px;gap:10px;align-items:center;padding:11px;border:1px solid var(--line);border-radius:11px}.case .risk{font-size:11px;font-weight:800}.case p{margin:0;font-size:12px;color:var(--muted)}.route{font-size:11px;font-weight:800;padding:6px 8px;border-radius:8px;text-align:center}.auto{background:var(--green4);color:var(--green)}.human{background:#f4f3ff;color:#6941c6}
+  .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}.step{padding:13px 8px;border-radius:12px;border:1px solid var(--line);text-align:center;background:white;transition:.25s}.step b{display:block;font-size:12px;margin-top:5px}.step.on{background:var(--green4);border-color:#9cd0b4;transform:translateY(-2px)}.drill{border:0;background:var(--green);color:white;padding:10px 12px;border-radius:10px;font-weight:800;cursor:pointer}.log{margin-top:12px;background:#0f2f24;color:#d7efe3;border-radius:11px;padding:12px;font-family:Consolas,monospace;font-size:11px;min-height:88px;white-space:pre-line}
+  .guardgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.guard{border:1px solid var(--line);border-radius:12px;padding:12px}.guard strong{font-size:13px}.guard p{font-size:11.5px;color:var(--muted);line-height:1.35;margin:6px 0 0}
+  table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:right}th:first-child,td:first-child{text-align:left}th{color:var(--muted);font-size:11px}.total td{font-weight:800;background:#f8faf9}
+  .modal{position:fixed;inset:0;background:rgba(16,24,40,.45);display:none;align-items:center;justify-content:center;padding:24px;z-index:20}.modal.open{display:flex}.modalbox{background:white;width:min(850px,96vw);max-height:88vh;overflow:auto;border-radius:16px;box-shadow:var(--shadow);padding:20px}.modaltop{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.close{border:0;background:#f2f4f7;border-radius:8px;padding:7px 10px;cursor:pointer}.budget-strip{display:flex;gap:8px;margin:12px 0 14px}.budget-strip div{flex:1;border-radius:10px;padding:10px;background:var(--green4)}.budget-strip b{display:block;font-size:18px}.budget-strip span{font-size:11px;color:var(--muted)}
+  .tagline{margin-top:14px;color:var(--muted);font-size:11px}.proto{position:fixed;right:18px;bottom:14px;background:#101828;color:white;padding:7px 10px;border-radius:999px;font-size:10px;opacity:.7}
+  @media(max-width:980px){.app{grid-template-columns:1fr}aside{position:relative;height:auto;display:flex;align-items:center;gap:10px;overflow:auto;padding:12px}.brand{padding:0}.brand small,.side-note{display:none}nav{display:flex;gap:4px}nav button{width:auto;white-space:nowrap}.layout{grid-template-columns:1fr}.grid4{grid-template-columns:repeat(2,1fr)}.levers{grid-template-columns:repeat(2,1fr)}main{padding:18px}.top{align-items:flex-start;flex-direction:column}.guardgrid{grid-template-columns:1fr}.flow{grid-template-columns:repeat(5,minmax(90px,1fr));overflow:auto}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+  <div class="brand"><div class="mark">TD</div><div><b>TasteDash</b><small>Productive Scale Control Tower</small></div></div>
+  <nav>
+    <button class="active" data-page="exec"><span class="ico">▦</span>Executive View</button>
+    <button data-page="stores"><span class="ico">▣</span>Store Network</button>
+    <button data-page="riders"><span class="ico">↗</span>Rider Operations</button>
+    <button data-page="cx"><span class="ico">◎</span>Customer Recovery</button>
+    <button data-page="guard"><span class="ico">◈</span>AI Guardrails</button>
+  </nav>
+  <div class="side-note"><b>Operating principle</b><br/>Automate routine work. Keep people on judgement. If automation threatens the customer promise, the customer promise wins.</div>
+</aside>
+<main>
+  <div class="top">
+    <div><div class="eyebrow">2030 Blueprint • interactive prototype</div><div class="title" id="pageTitle">Productive Scale — Board Control Tower</div><div class="subtitle" id="pageSub">See whether more demand is being absorbed without proportional cost, headcount or service degradation.</div></div>
+    <div class="top-actions"><div class="scenario"><button data-s="bear">Bear</button><button data-s="base" class="active">Base</button><button data-s="bull">Bull</button></div><button class="portfolioBtn" id="portfolioBtn">₹1,435 Cr portfolio ↗</button></div>
+  </div>
+
+  <section id="exec" class="section active">
+    <div class="grid4">
+      <div class="kpi"><div class="label">TasteDash GOV @ 19% share</div><div class="val" id="gov">₹70,870 Cr</div><div class="foot">No market-share gain underwritten</div></div>
+      <div class="kpi"><div class="label">Orders / store / day</div><div class="val" id="opd">~1,085</div><div class="foot">Breakeven threshold ≈ 1,040</div></div>
+      <div class="kpi"><div class="label">FY30 EBITDA</div><div class="val positive" id="ebitda">~₹165 Cr</div><div class="foot" id="ebitdaFoot">Breakeven cleared</div></div>
+      <div class="kpi"><div class="label">FY30 on-roll employees</div><div class="val">~53.1k</div><div class="foot">vs ~62.8k scaled do-nothing</div></div>
+    </div>
+    <div class="layout">
+      <div class="card"><h3>Where productivity changes the curve</h3><div class="desc">Five funded operating levers reduce how fast resources need to grow with demand.</div>
+        <div class="levers">
+          <div class="lever"><div class="tag">B1 • STORE</div><strong>Pick guidance</strong><div class="move">4.1 → 3.2–3.5 min</div><small>More orders per labour hour</small></div>
+          <div class="lever"><div class="tag">B3 • RIDERS</div><strong>Smart batching</strong><div class="move">1.28 → 1.45–1.60</div><small>Orders per trip</small></div>
+          <div class="lever"><div class="tag">C1+C2 • SUPPORT</div><strong>Recover faster</strong><div class="move">29% → 70–80%</div><small>Human-free routine support</small></div>
+          <div class="lever"><div class="tag">A1 • INVENTORY</div><strong>Forecast better</strong><div class="move">1.0% → 0.7–0.8%</div><small>Stock loss as % of GOV</small></div>
+        </div>
+        <h3 style="margin-top:20px">Path to breakeven</h3><div class="desc">Scale narrows the gap; productivity closes the remainder.</div>
+        <div class="bridge">
+          <div class="bar red" style="height:155px"><span>−2,131</span><em>FY26 EBITDA</em></div>
+          <div class="bar dark" style="height:96px"><span>+1,329</span><em>Organic scale</em></div>
+          <div class="bar grey" style="height:58px"><span>−802</span><em>Do-nothing FY30</em></div>
+          <div class="bar" style="height:31px"><span>+148</span><em>A1</em></div>
+          <div class="bar" style="height:45px"><span>+235</span><em>B1</em></div>
+          <div class="bar" style="height:60px"><span>+324</span><em>B3</em></div>
+          <div class="bar" style="height:26px"><span>+120</span><em>C1</em></div>
+          <div class="bar" style="height:33px"><span>+157</span><em>C2</em></div>
+          <div class="bar red" style="height:12px"><span>−15</span><em>Skill premium</em></div>
+          <div class="bar dark" style="height:38px"><span>+165</span><em>FY30 EBITDA</em></div>
+        </div>
+        <div class="bridge-note">Base case reaches breakeven without share gain or new-revenue bets.</div>
+      </div>
+      <div class="card"><h3>Management decision</h3><div class="desc">The dashboard converts scenario outcomes into an operating action.</div>
+        <div id="scenarioStatus" class="statusbox good"><div class="dot"></div><div><b>Network density is investable</b><p>Base demand supports the 2,600-store network, but new openings remain density-gated.</p></div></div>
+        <div class="statusbox good"><div class="dot"></div><div><b>Customer promise protected</b><p>Scale only while ETA, CSAT, rider economics and fallback controls remain inside guardrails.</p></div></div>
+        <div class="statusbox warn"><div class="dot"></div><div><b>Execution capacity is the residual risk</b><p>D1, D3 and G2 exist to make the operating levers repeatable, controlled and adopted.</p></div></div>
+        <div class="decision"><div class="big" id="actionTitle">Scale selectively</div><p id="actionText">Prioritise catchments that preserve density; pause marginal openings if forward productivity falls materially below the network threshold.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="stores" class="section">
+    <div class="layout">
+      <div class="card"><h3>Network density gate</h3><div class="desc">Expansion is released only when the network can absorb it productively.</div>
+        <div class="metric-row"><div class="mini"><b id="storeOpd">~1,085</b><span>Current scenario OPD</span></div><div class="mini"><b>~1,040</b><span>Approx. breakeven density</span></div><div class="mini"><b>2,600</b><span>FY30 planned stores</span></div></div>
+        <div class="threshold"><div class="fill"></div><div class="pin" id="densityPin" style="left:58%"></div></div><div class="threshold-labels"><span>Under-utilised</span><span>~1,040 threshold</span><span>High-density</span></div>
+        <div class="decision"><div class="big" id="networkAction">Scale selectively</div><p id="networkCopy">Open only where forward demand supports density; densify existing catchments before adding low-productivity capacity.</p></div>
+      </div>
+      <div class="card"><h3>B1 pick-guidance control</h3><div class="desc">A software-first productivity lever across the whole network.</div><div class="metric-row"><div class="mini"><b>4.1 min</b><span>FY26 pick time</span></div><div class="mini"><b class="positive">3.2–3.5</b><span>Target range</span></div><div class="mini"><b>≤3.5</b><span>Scale gate</span></div></div><div class="statusbox good" style="margin-top:15px"><div class="dot"></div><div><b>Rule</b><p>If pick time does not reach ≤3.5 minutes without accuracy/safety deterioration, pause rollout and re-test.</p></div></div></div>
+    </div>
+  </section>
+
+  <section id="riders" class="section">
+    <div class="layout">
+      <div class="card"><h3>B3 smart batching simulator</h3><div class="desc">Increase orders per trip while explicitly protecting rider economics and ETA.</div>
+        <div class="metric-row"><div class="mini"><b>1.28</b><span>FY26 orders/trip</span></div><div class="mini"><b>1.45–1.60</b><span>Target range</span></div><div class="mini"><b>+1.5–3 min</b><span>Case delivery-time trade-off</span></div></div>
+        <div class="sliderline"><span style="font-size:12px;font-weight:700">Rider payout uplift</span><input type="range" min="0" max="20" value="10" id="payout"><span class="pill" id="payoutVal">+10%</span></div>
+        <div id="riderStatus" class="statusbox good"><div class="dot"></div><div><b>Economics healthy</b><p>Planning assumption stays below the ~15% uplift level where batching economics approach breakeven.</p></div></div>
+      </div>
+      <div class="card"><h3>Dispatch guardrails</h3><div class="desc">The algorithm may optimise trips; it may not silently trade away the customer or rider promise.</div><div class="guardgrid"><div class="guard"><strong>ETA</strong><p>Scale only if service quality remains within agreed tolerance.</p></div><div class="guard"><strong>Rider pay</strong><p>Track payout/trip and earnings; intervene when efficiency gains come at rider expense.</p></div><div class="guard"><strong>Fallback</strong><p>City ops can immediately switch back to current dispatch logic.</p></div></div></div>
+    </div>
+  </section>
+
+  <section id="cx" class="section">
+    <div class="layout">
+      <div class="card"><h3>Customer recovery queue</h3><div class="desc">Automate reversible, low-risk cases; keep disputed, high-value and emotional cases human-led.</div><div class="queue">
+        <div class="case"><div class="risk positive">LOW RISK</div><p>Missing low-value item, clean order history, clear evidence.</p><div class="route auto">Auto-refund</div></div>
+        <div class="case"><div class="risk" style="color:#6941c6">JUDGEMENT</div><p>Repeated complaint with conflicting evidence and high customer value.</p><div class="route human">Human review</div></div>
+        <div class="case"><div class="risk negative">HIGH RISK</div><p>Fraud flag, high-value refund or rider/customer dispute.</p><div class="route human">Human decides</div></div>
+      </div>
+      <div class="metric-row"><div class="mini"><b>29%</b><span>FY26 human-free</span></div><div class="mini"><b class="positive">70–80%</b><span>C1 target</span></div><div class="mini"><b class="positive">40–55%</b><span>C2 leakage reduction</span></div></div>
+      </div>
+      <div class="card"><h3>Recovery principle</h3><div class="desc">Routine work becomes cheaper; difficult cases get more human attention, not less.</div><div class="statusbox good"><div class="dot"></div><div><b>Human override is a feature</b><p>Employees can stop or escalate a bad automated decision without being penalised for catching the error.</p></div></div><div class="statusbox warn"><div class="dot"></div><div><b>No double counting</b><p>Refund-leakage benefit is separated from support handling economics in the financial model.</p></div></div></div>
+    </div>
+  </section>
+
+  <section id="guard" class="section">
+    <div class="card"><h3>The 2 AM monsoon test</h3><div class="desc">A live failure drill for the operating model: when demand spikes, rider availability drops and model performance degrades.</div>
+      <button class="drill" id="runDrill">Run failure drill</button>
+      <div class="flow"><div class="step" id="st1">①<b>Detect</b></div><div class="step" id="st2">②<b>Escalate</b></div><div class="step" id="st3">③<b>Override</b></div><div class="step" id="st4">④<b>Rollback</b></div><div class="step" id="st5">⑤<b>Learn</b></div></div>
+      <div class="log" id="drillLog">Ready. Click “Run failure drill” to test the fallback path.</div>
+    </div>
+    <div class="layout">
+      <div class="card"><h3>D3 governance layer</h3><div class="desc">Every automated workflow has an owner, logs, thresholds, human override and rollback.</div><div class="guardgrid"><div class="guard"><strong>Named owner</strong><p>One accountable business owner for each automated decision.</p></div><div class="guard"><strong>Audit log</strong><p>Inputs, outputs, overrides and exceptions remain traceable.</p></div><div class="guard"><strong>Rollback</strong><p>Return to the last stable human/system workflow when guardrails fail.</p></div></div></div>
+      <div class="card"><h3>G2 adoption loop</h3><div class="desc">The operating model only works if the frontline actually uses it.</div><div class="flow" style="grid-template-columns:repeat(5,1fr)"><div class="step on">①<b>Train</b></div><div class="step on">②<b>Practice</b></div><div class="step on">③<b>Certify</b></div><div class="step on">④<b>Measure</b></div><div class="step on">⑤<b>Coach</b></div></div><div class="bridge-note">Expected adoption uplift when G2 is funded: +30–40 points.</div></div>
+    </div>
+  </section>
+
+  <div class="tagline">Prototype uses the case/deck planning assumptions and is intended to demonstrate the operating logic — not live company data.</div>
+</main>
+</div>
+
+<div class="modal" id="modal"><div class="modalbox"><div class="modaltop"><div><div class="eyebrow">Transformation portfolio</div><h2 style="margin:3px 0">₹1,435 Cr — 8 investments</h2></div><button class="close" id="close">Close</button></div><div class="budget-strip"><div><b>₹780 Cr</b><span>5 operating levers</span></div><div><b>₹655 Cr</b><span>3 enablers</span></div><div><b>₹15 Cr</b><span>Budget buffer</span></div></div><table><thead><tr><th>Project</th><th>FY27</th><th>FY28</th><th>FY29</th><th>FY30</th><th>Total</th></tr></thead><tbody>
+<tr><td>D1 • Data foundation</td><td>–</td><td>300</td><td>100</td><td>–</td><td>400</td></tr><tr><td>D3 • AI governance</td><td>–</td><td>110</td><td>–</td><td>–</td><td>110</td></tr><tr><td>A1 • Forecasting</td><td>–</td><td>–</td><td>176</td><td>44</td><td>220</td></tr><tr><td>B1 • Pick guidance</td><td>–</td><td>145</td><td>–</td><td>–</td><td>145</td></tr><tr><td>B3 • Smart batching</td><td>–</td><td>105</td><td>–</td><td>–</td><td>105</td></tr><tr><td>C1 • AI support</td><td>–</td><td>180</td><td>–</td><td>–</td><td>180</td></tr><tr><td>C2 • Refund automation</td><td>–</td><td>49</td><td>81</td><td>–</td><td>130</td></tr><tr><td>G2 • Frontline adoption</td><td>–</td><td>145</td><td>–</td><td>–</td><td>145</td></tr><tr class="total"><td>TOTAL</td><td>–</td><td>1,034</td><td>357</td><td>44</td><td>1,435</td></tr></tbody></table><div class="bridge-note">Dependencies satisfied: D1 → A1 ✓ &nbsp;&nbsp; C1 → C2 ✓</div></div></div>
+<div class="proto">Interactive case prototype</div>
+<script>
+const scen={bear:{gov:'₹51,680 Cr',opd:'~790',ebitda:'~₹(960) Cr',foot:'Fails breakeven',kind:'bad',status:'Network structurally under-utilised',statusCopy:'At 19% share, demand density is too low for the planned 2,600-store network. AI cannot fix a physical utilisation problem.',action:'Freeze marginal openings',actionText:'Protect strategic coverage, but pause discretionary store expansion and densify existing catchments until forward density recovers.',pin:'28%'},base:{gov:'₹70,870 Cr',opd:'~1,085',ebitda:'~₹165 Cr',foot:'Breakeven cleared',kind:'good',status:'Network density is investable',statusCopy:'Base demand supports the 2,600-store network, but new openings remain density-gated.',action:'Scale selectively',actionText:'Prioritise catchments that preserve density; pause marginal openings if forward productivity falls materially below the network threshold.',pin:'58%'},bull:{gov:'₹88,350 Cr',opd:'~1,350',ebitda:'~₹1,195 Cr',foot:'Operating leverage compounds',kind:'good',status:'Network has high operating leverage',statusCopy:'Demand density materially exceeds the breakeven threshold, allowing the same network to absorb more volume.',action:'Accelerate with guardrails',actionText:'Release capacity faster while keeping ETA, rider economics, support quality and store accuracy inside the same control limits.',pin:'82%'}};
+function setScenario(k){document.querySelectorAll('.scenario button').forEach(b=>b.classList.toggle('active',b.dataset.s===k));const x=scen[k];gov.textContent=x.gov;opd.textContent=x.opd;ebitda.textContent=x.ebitda;ebitda.className='val '+(k==='bear'?'negative':'positive');ebitdaFoot.textContent=x.foot;storeOpd.textContent=x.opd;densityPin.style.left=x.pin;scenarioStatus.className='statusbox '+x.kind;scenarioStatus.querySelector('b').textContent=x.status;scenarioStatus.querySelector('p').textContent=x.statusCopy;actionTitle.textContent=x.action;actionText.textContent=x.actionText;networkAction.textContent=x.action;networkCopy.textContent=x.actionText}
+document.querySelectorAll('.scenario button').forEach(b=>b.onclick=()=>setScenario(b.dataset.s));
+const meta={exec:['Productive Scale — Board Control Tower','See whether more demand is being absorbed without proportional cost, headcount or service degradation.'],stores:['Store Network — Density Before Expansion','Use network density and pick productivity to decide where capacity can scale safely.'],riders:['Rider Operations — Efficiency With Guardrails','Batch more orders per trip without silently trading away ETA, rider earnings or safety.'],cx:['Customer Recovery — Automate Routine, Preserve Judgement','Resolve simple cases automatically and route disputed or high-impact cases to people.'],guard:['AI Guardrails — Control the Failure Path','Make every automated workflow observable, overrideable and reversible.']};
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));document.getElementById(b.dataset.page).classList.add('active');pageTitle.textContent=meta[b.dataset.page][0];pageSub.textContent=meta[b.dataset.page][1]});
+portfolioBtn.onclick=()=>modal.classList.add('open');close.onclick=()=>modal.classList.remove('open');modal.onclick=e=>{if(e.target===modal)modal.classList.remove('open')};
+payout.oninput=()=>{const v=+payout.value;payoutVal.textContent='+'+v+'%';riderStatus.className='statusbox '+(v<=12?'good':v<=15?'warn':'bad');riderStatus.querySelector('b').textContent=v<=12?'Economics healthy':v<=15?'Economics near guardrail':'Economics at risk';riderStatus.querySelector('p').textContent=v<=12?'Planning assumption stays below the ~15% uplift level where batching economics approach breakeven.':v<=15?'Efficiency benefit is narrowing; monitor rider economics and ETA before scaling further.':'Payout uplift is beyond the planning guardrail; pause scale-up and re-optimise batching.'};
+let running=false;runDrill.onclick=()=>{if(running)return;running=true;document.querySelectorAll('.step').forEach(s=>s.classList.remove('on'));const msgs=['02:03 — Demand anomaly detected; rider availability falling.','02:04 — City ops and model owner paged; ETA guardrail breached.','02:05 — Human operator overrides batching logic.','02:06 — Dispatch rolls back to last stable workflow.','02:15 — Incident logged; thresholds and training set updated.'];drillLog.textContent='';[1,2,3,4,5].forEach((n,i)=>setTimeout(()=>{document.getElementById('st'+n).classList.add('on');drillLog.textContent+=(i?'\n':'')+msgs[i];if(i===4)running=false},i*700))};
+</script>
+</body></html>
